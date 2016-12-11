@@ -43,7 +43,7 @@ void change_drive (Drive_Direction dir, uint8_t speed) {
 
   switch (dir) {
   case REVERSE:
-    digitalWrite(M1_DIR_PIN, 0);
+    digitalWrite(M1_DIR_PIN, 1);
     digitalWrite(M2_DIR_PIN, 0);
     break;
   case SPIN_R:
@@ -52,11 +52,12 @@ void change_drive (Drive_Direction dir, uint8_t speed) {
     speed = 0;			/* stopping for the moment */
     break;
   case FORWARD:
-    digitalWrite(M1_DIR_PIN, 1);
+    digitalWrite(M1_DIR_PIN, 0);
     digitalWrite(M2_DIR_PIN, 1);
     break;
   case STOP:			/* fall-through */
   default:
+    speed = 0;
     break;
   }
 
@@ -117,7 +118,17 @@ void setup () {
     delay(125);			/* using delay in start up -- not delaying other processes */
   }
 
+  pinMode(M1_DIR_PIN, OUTPUT);
+  pinMode(M2_DIR_PIN, OUTPUT);
+
   change_drive(STOP, 0);
+
+  delay(200);
+  change_drive(FORWARD, 100);
+  delay(1000);
+  change_drive(REVERSE, 150);
+  delay(1000);
+  change_drive(STOP, 150);
 }
 
 
@@ -133,6 +144,6 @@ void loop () {
 
   /* Update the drive */
   if (last_drive_state != drive_state) {
-    change_drive(drive_state, 100);
+    //    change_drive(drive_state, 100);
   }
 }
