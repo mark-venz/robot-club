@@ -10,6 +10,8 @@
  */
 const uint8_t LED_PIN = 13;
 
+#define TOGGLE(PIN) digitalWrite(PIN, digitalRead(PIN) ^ 1)
+
 
 /* ********************************************************************
  * Function definitions
@@ -30,7 +32,7 @@ void intermitanttly_check () {
   uint16_t now = millis();
 
   if (now > heartbeat_next) {
-    digitalWrite(LED_PIN, digitalRead(LED_PIN) ^ 1); /*  */
+    TOGGLE(LED_PIN);
     heartbeat_next = now + HEARTBEAT_PERIOD; /* set the next time this should be changed */
   }
 
@@ -46,6 +48,11 @@ void setup () {
   /* write to the LED_PIN */
   pinMode(LED_PIN, OUTPUT);
 
+  for (uint8_t i = 0; i < 6; i++) {
+    /* show a reboot flash sequence */
+    TOGGLE(LED_PIN);
+    delay(125); 		/* using delay in start up -- not delaying other processes */
+  }
 
 }
 
