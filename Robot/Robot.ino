@@ -123,12 +123,6 @@ void setup () {
 
   change_drive(STOP, 0);
 
-  delay(200);
-  change_drive(FORWARD, 100);
-  delay(1000);
-  change_drive(REVERSE, 150);
-  delay(1000);
-  change_drive(STOP, 150);
 }
 
 
@@ -144,6 +138,6 @@ void loop () {
 
   /* Update the drive */
   if (last_drive_state != drive_state) {
-    //    change_drive(drive_state, 100);
+    change_drive(drive_state, 100);
   }
 }
