@@ -9,10 +9,16 @@
  * There is much debate about #define vs const TYPE
  */
 const uint8_t LED_PIN = 13;
+const uint8_t SW_PIN  = A7;
 
 #define TOGGLE(PIN) digitalWrite(PIN, digitalRead(PIN) ^ 1)
 
-
+/* ********************************************************************
+ * Global definitions
+ *
+ *
+ */
+uint8_t button_pressed = 0;
 
 
 /* ********************************************************************
@@ -73,7 +79,7 @@ void change_drive (Drive_Direction dir, uint8_t speed) {
 /* ********************************************************************
  * Function definitions
  *
- * TODO push these to a library
+ * TODO push these to a library?
  */
 
 void intermitanttly_check () {
@@ -82,21 +88,25 @@ void intermitanttly_check () {
    *
    * Checking current time against when an expected time
    */
+  uint16_t now = millis();
 
   const uint16_t HEARTBEAT_PERIOD = 500; /* half second beat on the LED */
   static uint32_t heartbeat_next = HEARTBEAT_PERIOD;
-  uint16_t now = millis();
 
+  static uint32_t time_to_drive = 0;
+
+  /* heartbeat checking  */
   if (now > heartbeat_next) {
     TOGGLE(LED_PIN);
     heartbeat_next = now + HEARTBEAT_PERIOD; /* set the next time this should be changed */
   }
 
   /* After 0.5 sec move for 0.5 sec */
-  if (now > 500 && now < 2000 && drive_state == STOP) {
+  if (button_pressed) {
+    time_to_drive = now + HEARTBEAT_PERIOD; /* use some thing else if more that 1/2sec is required */
     drive_state = FORWARD;
   }
-  if (now > 2000 && drive_state == FORWARD) {
+  if (now > time_to_drive) {
     drive_state = STOP;
   }
 }
@@ -109,8 +119,9 @@ void intermitanttly_check () {
  * anything run once at start-up / reboot should be added here
  */
 void setup () {
-  /* write to the LED_PIN */
-  pinMode(LED_PIN, OUTPUT);
+
+  pinMode(LED_PIN, OUTPUT);	/* write to pin 13 - on board LED connected to  */
+  pinMode(SW_PIN, INPUT);
 
   for (uint8_t i = 0; i < 6; i++) {
     /* show a reboot flash sequence */
@@ -133,11 +144,15 @@ void setup () {
  */
 void loop () {
 
-  /* no delay period */
+  /* no delay periodic actions  */
   intermitanttly_check();
 
   /* Update the drive */
   if (last_drive_state != drive_state) {
     change_drive(drive_state, 100);
   }
+
+  /* look for the button checked */
+  button_pressed = !(analogRead(SW_PIN) > 10); /* pin should be normally high */
+
 }
