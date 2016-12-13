@@ -1,3 +1,4 @@
+/* -*- mode: c; -*- */
 /*
  * Programming a robot (mBot)
  */
@@ -16,9 +17,28 @@ const uint8_t SW_PIN  = A7;
 /* ********************************************************************
  * Global definitions
  *
+ * if any
+ */
+
+
+
+/* ********************************************************************
+ * Line sensor
+ *
  *
  */
-uint8_t button_pressed = 0;
+typedef enum {
+
+  BOTH_BLACK   = 0,   /* sensor1 and sensor2 are both inside of black line */
+  LEFT_BLACK   = 1,   /* sensor1 is inside of black line and sensor2 is outside of black line */
+  RIGHT_BLACK  = 2,   /* sensor1 is outside of black line and sensor2 is inside of black line */
+  BOTH_WHITE   = 3    /* sensor1 and sensor2 are both outside of black line */
+
+} Line_Sensor_State;
+
+const uint8_t LINE_SENSOR_1_PIN =  9;
+const uint8_t LINE_SENSOR_2_PIN = 10;
+
 
 
 /* ********************************************************************
@@ -27,19 +47,34 @@ uint8_t button_pressed = 0;
  *
  */
 typedef enum {
-  STOP = 0,
+
+  STOP    = 0,
   FORWARD,
   SPIN_L,
   SPIN_R,
   REVERSE
+
 } Drive_Direction;
-Drive_Direction drive_state = STOP;
+Drive_Direction drive_state      = STOP;
 Drive_Direction last_drive_state = STOP;
 
 const uint8_t M1_DIR_PIN = 7;
 const uint8_t M1_PWM_PIN = 6;
 const uint8_t M2_DIR_PIN = 4;
 const uint8_t M2_PWM_PIN = 5;
+
+
+/* ********************************************************************
+ * functions
+ */
+
+Line_Sensor_State read_line_follower (void) {
+
+  uint8_t state = (1 & digitalRead(LINE_SENSOR_1_PIN)) << 1 | digitalRead(LINE_SENSOR_2_PIN);
+
+  return (Line_Sensor_State) state;
+}
+
 
 void change_drive (Drive_Direction dir, uint8_t speed) {
 
@@ -52,15 +87,22 @@ void change_drive (Drive_Direction dir, uint8_t speed) {
     digitalWrite(M1_DIR_PIN, 1);
     digitalWrite(M2_DIR_PIN, 0);
     break;
+
   case SPIN_R:
-  case SPIN_L:
-    /* TODO  */
-    speed = 0;			/* stopping for the moment */
+    digitalWrite(M1_DIR_PIN, 0);
+    digitalWrite(M2_DIR_PIN, 0);
     break;
+
+  case SPIN_L:
+    digitalWrite(M1_DIR_PIN, 1);
+    digitalWrite(M2_DIR_PIN, 1);
+    break;
+
   case FORWARD:
     digitalWrite(M1_DIR_PIN, 0);
     digitalWrite(M2_DIR_PIN, 1);
     break;
+
   case STOP:			/* fall-through */
   default:
     speed = 0;
@@ -69,7 +111,6 @@ void change_drive (Drive_Direction dir, uint8_t speed) {
 
   analogWrite(M1_PWM_PIN, speed);
   analogWrite(M2_PWM_PIN, speed);
-
 
   last_drive_state = drive_state;
 }
@@ -93,7 +134,6 @@ void intermitanttly_check () {
   const uint16_t HEARTBEAT_PERIOD = 500; /* half second beat on the LED */
   static uint32_t heartbeat_next = HEARTBEAT_PERIOD;
 
-  static uint32_t time_to_drive = 0;
 
   /* heartbeat checking  */
   if (now > heartbeat_next) {
@@ -101,14 +141,6 @@ void intermitanttly_check () {
     heartbeat_next = now + HEARTBEAT_PERIOD; /* set the next time this should be changed */
   }
 
-  /* After 0.5 sec move for 0.5 sec */
-  if (button_pressed) {
-    time_to_drive = now + HEARTBEAT_PERIOD; /* use some thing else if more that 1/2sec is required */
-    drive_state = FORWARD;
-  }
-  if (now > time_to_drive) {
-    drive_state = STOP;
-  }
 }
 
 
@@ -144,15 +176,63 @@ void setup () {
  */
 void loop () {
 
+  static uint8_t motion_enabled = 0; /* Controlled by the button */
+
+  static uint8_t last_line_reading;
+  uint8_t now_line_reading;
+
   /* no delay periodic actions  */
   intermitanttly_check();
+
+  /* look for the button checked */
+  if (!(analogRead(SW_PIN) > 10)) {
+
+    motion_enabled = 1 ^ motion_enabled; /* toggle the motion_enabled via button */
+
+  }
+
+  /* get the line sensor state and do something with it */
+  if (motion_enabled) {
+    now_line_reading = read_line_follower();
+
+    switch (now_line_reading) {
+
+    case BOTH_BLACK:
+
+      drive_state = (last_line_reading == LEFT_BLACK)
+	? SPIN_R
+	: (last_line_reading == RIGHT_BLACK) ? SPIN_L :  drive_state;
+
+      break;
+
+    case LEFT_BLACK:
+      /* Fall-through */
+    case RIGHT_BLACK:
+      drive_state = FORWARD;
+      break;
+
+    case BOTH_WHITE:
+
+      drive_state = (last_line_reading == LEFT_BLACK)
+	? SPIN_L
+	: (last_line_reading == RIGHT_BLACK) ? SPIN_R :  drive_state;
+
+      break;
+
+    }
+
+    last_line_reading = now_line_reading;
+
+  } else {
+
+    drive_state = STOP;
+
+  }
+
 
   /* Update the drive */
   if (last_drive_state != drive_state) {
     change_drive(drive_state, 100);
   }
-
-  /* look for the button checked */
-  button_pressed = !(analogRead(SW_PIN) > 10); /* pin should be normally high */
 
 }
