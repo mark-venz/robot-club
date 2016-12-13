@@ -1,3 +1,4 @@
+/* -*- mode: c; -*- */
 /*
  * Programming a robot (mBot)
  */
@@ -28,10 +29,10 @@ const uint8_t SW_PIN  = A7;
  */
 typedef enum {
 
-  S1_IN_S2_IN   = 0,   /* sensor1 and sensor2 are both inside of black line */
-  S1_IN_S2_OUT  = 1,   /* sensor1 is inside of black line and sensor2 is outside of black line */
-  S1_OUT_S2_IN  = 2,   /* sensor1 is outside of black line and sensor2 is inside of black line */
-  S1_OUT_S2_OUT = 3    /* sensor1 and sensor2 are both outside of black line */
+  BOTH_BLACK   = 0,   /* sensor1 and sensor2 are both inside of black line */
+  LEFT_BLACK   = 1,   /* sensor1 is inside of black line and sensor2 is outside of black line */
+  RIGHT_BLACK  = 2,   /* sensor1 is outside of black line and sensor2 is inside of black line */
+  BOTH_WHITE   = 3    /* sensor1 and sensor2 are both outside of black line */
 
 } Line_Sensor_State;
 
@@ -47,14 +48,14 @@ const uint8_t LINE_SENSOR_2_PIN = 10;
  */
 typedef enum {
 
-  STOP = 0,
+  STOP    = 0,
   FORWARD,
   SPIN_L,
   SPIN_R,
   REVERSE
 
 } Drive_Direction;
-Drive_Direction drive_state = STOP;
+Drive_Direction drive_state      = STOP;
 Drive_Direction last_drive_state = STOP;
 
 const uint8_t M1_DIR_PIN = 7;
@@ -86,15 +87,22 @@ void change_drive (Drive_Direction dir, uint8_t speed) {
     digitalWrite(M1_DIR_PIN, 1);
     digitalWrite(M2_DIR_PIN, 0);
     break;
+
   case SPIN_R:
-  case SPIN_L:
-    /* TODO  */
-    speed = 0;			/* stopping for the moment */
+    digitalWrite(M1_DIR_PIN, 0);
+    digitalWrite(M2_DIR_PIN, 0);
     break;
+
+  case SPIN_L:
+    digitalWrite(M1_DIR_PIN, 1);
+    digitalWrite(M2_DIR_PIN, 1);
+    break;
+
   case FORWARD:
     digitalWrite(M1_DIR_PIN, 0);
     digitalWrite(M2_DIR_PIN, 1);
     break;
+
   case STOP:			/* fall-through */
   default:
     speed = 0;
@@ -185,17 +193,22 @@ void loop () {
 
     switch (read_line_follower()) {
 
-    case S1_IN_S2_IN:
-      //break;
-    case S1_IN_S2_OUT:
-      //break;
-    case S1_OUT_S2_IN:
+    case BOTH_BLACK:
       drive_state = STOP;
       break;
 
-    case S1_OUT_S2_OUT:
+    case LEFT_BLACK:
+      drive_state = SPIN_L;
+      break;
+
+    case RIGHT_BLACK:
+      drive_state = SPIN_R;
+      break;
+
+    case BOTH_WHITE:
       drive_state = FORWARD;
       break;
+
     }
 
   } else {
