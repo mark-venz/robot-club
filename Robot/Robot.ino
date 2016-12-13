@@ -178,6 +178,9 @@ void loop () {
 
   static uint8_t motion_enabled = 0; /* Controlled by the button */
 
+  static uint8_t last_line_reading;
+  uint8_t now_line_reading;
+
   /* no delay periodic actions  */
   intermitanttly_check();
 
@@ -190,26 +193,35 @@ void loop () {
 
   /* get the line sensor state and do something with it */
   if (motion_enabled) {
+    now_line_reading = read_line_follower();
 
-    switch (read_line_follower()) {
+    switch (now_line_reading) {
 
     case BOTH_BLACK:
-      drive_state = STOP;
+
+      drive_state = (last_line_reading == LEFT_BLACK)
+	? SPIN_R
+	: (last_line_reading == RIGHT_BLACK) ? SPIN_L :  drive_state;
+
       break;
 
     case LEFT_BLACK:
-      drive_state = SPIN_L;
-      break;
-
+      /* Fall-through */
     case RIGHT_BLACK:
-      drive_state = SPIN_R;
-      break;
-
-    case BOTH_WHITE:
       drive_state = FORWARD;
       break;
 
+    case BOTH_WHITE:
+
+      drive_state = (last_line_reading == LEFT_BLACK)
+	? SPIN_L
+	: (last_line_reading == RIGHT_BLACK) ? SPIN_R :  drive_state;
+
+      break;
+
     }
+
+    last_line_reading = now_line_reading;
 
   } else {
 
