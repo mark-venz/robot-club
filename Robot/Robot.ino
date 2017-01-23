@@ -1,7 +1,9 @@
 /*
  * Programming a robot (mBot)
  */
-
+#include <Arduino.h>
+/* #include "./lib/EmRGBLed.h" */
+#include "EmRGBLed.h"
 
 /* ********************************************************************
  * Constants definitions
@@ -11,6 +13,9 @@
 const uint8_t LED_PIN = 13;
 
 #define TOGGLE(PIN) digitalWrite(PIN, digitalRead(PIN) ^ 1)
+
+EmRGBLed rgb = EmRGBLed(0,8);
+
 
 
 /* ********************************************************************
@@ -51,9 +56,28 @@ void setup () {
   for (uint8_t i = 0; i < 6; i++) {
     /* show a reboot flash sequence */
     TOGGLE(LED_PIN);
-    delay(125); 		/* using delay in start up -- not delaying other processes */
+    delay(125);			/* using delay in start up -- not delaying other processes */
   }
 
+  /* from the factory list - checking the flashing of the light */
+  delay(300);
+  digitalWrite(13,LOW);
+  rgb.setpin(13);
+  rgb.setColorAll(0,0,0);
+  rgb.show();
+  rgb.setColorAll(10, 0, 0);
+  rgb.show();
+  delay(300);
+  rgb.setColorAll(0, 10, 0);
+  rgb.show();
+  delay(300);
+  rgb.setColorAll(0, 0, 10);
+  rgb.show();
+  delay(300);
+  rgb.setColorAll(0, 10, 0);
+  rgb.show();
+  delay(300);
+  rgb.setColorAll(10, 0, 0);
 }
 
 
@@ -65,5 +89,5 @@ void setup () {
 void loop () {
 
   /* no delay period */
-  intermitanttly_check();
+  /* intermitanttly_check(); */
 }
