@@ -1,0 +1,19 @@
+# -*- mode: org; mode: hl-line;mode: flyspell; comment-start: nil; fill-column: 110 -*-
+
+* Robot Club
+This is code to assist in learning:
+ - how to code,
+ - robotic concepts, and
+ - source control
+
+*NOTE* Branches are important, as not all functionality has been merged back into master.
+
+** Robot
+Arduino source for MakeBlock mBot/mCore:
+ - http://www.makeblock.com/mbot-v1-1-stem-educational-robot-kit
+ - http://www.makeblock.com/mcore-main-control-board-for-mbot
+
+The code is enough to highlight some features of the robot.
+Code derived from, and in some cases a subset of https://github.com/Makeblock-official/mBot
+
+* TODO Instructions to follow
