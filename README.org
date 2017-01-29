@@ -1,5 +1,9 @@
-# -*- mode: org; mode: hl-line;mode: flyspell; comment-start: nil; fill-column: 110 -*-
+# -*- mode: org; mode: hl-line;mode: flyspell; fill-column: 110 -*-
 
+# This is the Master README
+# edit this file and then generate the markdown version
+# M-x org-md-export-to-markdown
+# this should be automated -- in a git pre-commit hook
 * Robot Club
 This is code to assist in learning:
  - how to code,
