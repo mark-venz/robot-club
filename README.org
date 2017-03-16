@@ -1,9 +1,6 @@
-# -*- mode: org; mode: hl-line;mode: flyspell; fill-column: 110 -*-
+# -*- mode: org; mode: hl-line;mode: flyspell; fill-column: 80 -*-
 
 # This is the Master README
-# edit this file and then generate the markdown version
-# M-x org-md-export-to-markdown
-# this should be automated -- in a git pre-commit hook
 * Robot Club
 This is code to assist in learning:
  - how to code,
@@ -12,6 +9,9 @@ This is code to assist in learning:
 
 *NOTE* Branches are important, as not all functionality has been merged back into master.
 
+Required to use this code.
+ - an arduino based robot, mBot or equivalent,
+ - software installed see [[Software assumptions]]
 ** Robot
 Arduino source for MakeBlock mBot/mCore:
  - http://www.makeblock.com/mbot-v1-1-stem-educational-robot-kit
@@ -19,5 +19,24 @@ Arduino source for MakeBlock mBot/mCore:
 
 The code is enough to highlight some features of the robot.
 Code derived from, and in some cases a subset of https://github.com/Makeblock-official/mBot
+
+** Software assumptions
+*** Source control softare
+git is the best navigate around the source.
+
+Install via instructions here: https://git-scm.com/downloads
+The pending instructions use the commandline to access and manipulate the repository. I'd imagine there are GUI equivalents to most commands
+
+*** Arduino IDE
+To compile and download the program to the robot, it is easiest to use the arduino IDE.
+Available here: https://www.arduino.cc/en/Main/Software
+
+The IDE provides a space to edit the source code.
+
+*** USB Drivers for your operating system
+Connecting the robot to the computer may work.
+If there are issues,you may also need usb drivers for your computer.
+
+
 
 * TODO Instructions to follow
