@@ -11,7 +11,7 @@ This is code to assist in learning:
 
 Required to use this code.
  - an arduino based robot, mBot or equivalent,
- - software installed see [[Software assumptions]]
+ - software installed see "Software assumptions" below
 ** Robot
 Arduino source for MakeBlock mBot/mCore:
  - http://www.makeblock.com/mbot-v1-1-stem-educational-robot-kit
